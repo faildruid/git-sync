@@ -1,0 +1,81 @@
+image:
+  repository: keppel.eu-de-1.cloud.sap/nwauto-shared/git-sync
+  tag: "0.1.0"
+  pullPolicy: IfNotPresent
+
+cronJob:
+  # Every 12 hours
+  schedule: "0 */12 * * *"
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  startingDeadlineSeconds: 300
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400
+  restartPolicy: "OnFailure"
+
+serviceAccount:
+  create: true
+  # If set, use this SA instead of creating one named after the release
+  name: ""
+
+rbac:
+  create: true
+
+mountPaths:
+  sshKeys: /keys
+  directoriesFile: /config/directories.txt
+
+# Content of the directories file; your bash script can read from /config/directories.txt
+directoriesFileContent: |
+  cep-dev-env
+  ci-base-images
+  helm-pci-stack
+  kill-switch
+  main-docs
+  netbox-device-groups
+  password-seeder
+  pb_password_rotation
+  pcidss-awx-config
+  secrets-manager-service
+
+# Non-secret environment variables injected directly into the pod
+env:
+  TOOLS_TO_WDF: "true" # If _true_, sync from Tools to WDF repos; if _false_, sync from WDF to Tools repos
+  
+# Secret environment variables, stored in a Secret and injected via envFrom
+secretEnv:
+  enabled: true
+  # Optional: override the name of the Secret; leave empty to use the default (<release>-gitsync-env)
+  secretName: ""
+  # Key-value pairs become entries in the Secret and env vars in the container
+  vars:
+    TOOLS_ORG: "https://github.tools.sap/cpe"   # Tools Org URL   
+    TOOLS_APP_ID: "1774"                          # Tools Github App ID
+    TOOLS_INST_ID: "22554"                        # Tools Github App Installation ID
+    WDF_ORG: "https://github.wdf.sap/sci-net"   # WDF Org URL
+    WDF_APP_ID: "1116"                            # WDF Github App ID
+    WDF_INST_ID: "9565"                           # WDF Github App Installation ID  
+
+# SSH key Secret configuration
+sshKeys:
+  create: true
+  # Optional: override the name of the SSH keys Secret; leave empty to use the default (<release>-gitsync-ssh-keys)
+  secretName: ""
+  toolsKeyName: toolsKey
+  toolsKey: |
+    # dummy private key for example only
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    YOUR-PRIVATE-KEY-1-HERE
+    -----END OPENSSH PRIVATE KEY-----
+  wdfKeyName: wdfKey
+  wdfKey: |
+    # dummy private key for example only
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    YOUR-PRIVATE-KEY-2-HERE
+    -----END OPENSSH PRIVATE KEY-----
+
+# NOTE:
+# For real deployments, you should NOT commit real private keys or tokens in values.yaml.
+# Instead, use:
+#   --set-file sshKeys.toolsKey=/path/to/toolsKey #   --set-file sshKeys.wdfKey=/path/to/wdfKey 

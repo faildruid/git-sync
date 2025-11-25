@@ -1,0 +1,117 @@
+# ┏━━━━━━━━━━━━━━━┓
+# ┃  Helm Charts  ┃
+# ┗━━━━━━━━━━━━━━━┛
+
+# Helm packaged dependencies (tgz)
+**/charts/*.tgz
+
+# Helm lock file (optional to ignore; keep if you want reproducibility)
+helm-charts/Chart.lock
+
+# Generated files in the ci/ should be ignored
+ci/.*
+
+# Helm package archives
+*.tgz
+*.tar.gz
+
+# Local temp/template files
+**/template.tmp
+
+# Helm test/output/temp dirs
+.output/
+.tmp/
+
+# Helm values used per environment (keep out of git)
+# values.dev.yaml
+# values.test.yaml
+values.prod.yaml
+
+# ┏━━━━━━━━━━━━━━━┓
+# ┃  OS / Editor  ┃
+# ┗━━━━━━━━━━━━━━━┛
+
+# Vim
+*.sw?
+*.swo
+*.swn
+*.swp
+.netrwhist
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+.TemporaryItems
+.fseventsd
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+*.icloud
+
+# Linux
+*~
+.directory
+.Trash-*
+.fuse_hidden*
+.nfs*
+
+# VSCode
+.vscode/
+.history/
+*.vsix
+
+# Tags and sessions
+tags
+Session.vim
+Sessionx.vim
+.ionide
+
+# ┏━━━━━━━━━━━━━━━┓
+# ┃  CI / Secrets ┃
+# ┗━━━━━━━━━━━━━━━┛
+
+# Kubeconfigs or cluster credentials
+kubeconfig/
+*.kubeconfig
+*.kube.yaml
+*.kube.yml
+
+# CI artifacts or outputs
+ci/*.log
+*.log
+
+# Shell script outputs
+*.out
+
+# Environment Secrets Values file
+helm-charts/values.yaml
+
+# certificate files
+**.crt
+**.key
+
+# ┏━━━━━━━━━━━━━━━┓
+# ┃  Scripts      ┃
+# ┗━━━━━━━━━━━━━━━┛
+
+# Python virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# ┏━━━━━━━━━━━━━━━┓
+# ┃  Scripts      ┃
+# ┗━━━━━━━━━━━━━━━┛
+site

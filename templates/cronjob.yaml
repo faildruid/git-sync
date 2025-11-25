@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "gitsync.fullname" . }}
+  labels:
+    {{- include "gitsync.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.cronJob.schedule | quote }}
+  concurrencyPolicy: {{ .Values.cronJob.concurrencyPolicy | quote }}
+  successfulJobsHistoryLimit: {{ .Values.cronJob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.cronJob.failedJobsHistoryLimit }}
+  startingDeadlineSeconds: {{ .Values.cronJob.startingDeadlineSeconds }}
+  {{- if .Values.cronJob.ttlSecondsAfterFinished }}
+  ttlSecondsAfterFinished: {{ .Values.cronJob.ttlSecondsAfterFinished }}
+  {{- end }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .Values.cronJob.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "gitsync.selectorLabels" . | nindent 12 }}
+        spec:
+          serviceAccountName: {{ include "gitsync.serviceAccountName" . }}
+          restartPolicy: {{ .Values.cronJob.restartPolicy | quote }}
+          containers:
+            - name: gitsync
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+              # Secret environment variables from Secret (envFrom)
+              {{- if and .Values.secretEnv.enabled (gt (len .Values.secretEnv.vars) 0) }}
+              envFrom:
+                - secretRef:
+                    name: {{ include "gitsync.envSecretName" . }}
+              {{- end }}
+
+              env:
+                # Non-secret env vars
+                {{- range $key, $value := .Values.env }}
+                - name: {{ $key }}
+                  value: {{ $value | quote }}
+                {{- end }}
+                # Built-in envs for file paths
+                - name: GITSYNC_SSH_KEY_DIR
+                  value: {{ .Values.mountPaths.sshKeys | quote }}
+                - name: GITSYNC_DIRECTORIES_FILE
+                  value: {{ .Values.mountPaths.directoriesFile | quote }}
+
+              volumeMounts:
+                - name: ssh-keys
+                  mountPath: {{ .Values.mountPaths.sshKeys | quote }}
+                  readOnly: true
+                - name: directories-file
+                  mountPath: /config
+                  readOnly: true
+
+          volumes:
+            - name: ssh-keys
+              secret:
+                secretName: {{ include "gitsync.sshKeysSecretName" . }}
+            - name: directories-file
+              configMap:
+                name: {{ include "gitsync.directoriesConfigMapName" . }}
+                items:
+                  - key: directories.txt
+                    path: directories.txt

@@ -1,0 +1,58 @@
+image:
+  repository: your-registry/gitsync
+  tag: "test"
+  pullPolicy: IfNotPresent
+
+cronJob:
+  schedule: "0 */12 * * *"
+  concurrencyPolicy: "Forbid"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  startingDeadlineSeconds: 300
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400
+  restartPolicy: "OnFailure"
+
+serviceAccount:
+  create: true
+  name: ""
+
+rbac:
+  create: true
+
+mountPaths:
+  sshKeys: /keys
+  directoriesFile: /config/directories.txt
+
+directoriesFileContent: |
+  repo-one
+  repo-two
+
+env:
+  GIT_USERNAME: "fixture-user"
+  LOG_LEVEL: "debug"
+
+secretEnv:
+  enabled: true
+  secretName: ""
+  vars:
+    TOOLS_ORG: "https://github.tools.sap/cpe"
+    TOOLS_APP_ID: "1774"
+    TOOLS_INST_ID: "22554"
+    WDF_ORG: "https://github.wdf.sap/sci-net"
+    WDF_APP_ID: "1116"
+    WDF_INST_ID: "9565"
+
+sshKeys:
+  create: true
+  secretName: ""
+  toolsKeyName: id_rsa_tools
+  toolsKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    FIXTURE-KEY-1
+    -----END OPENSSH PRIVATE KEY-----
+  wdfKeyName: id_rsa_wdf
+  wdfKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    FIXTURE-KEY-2
+    -----END OPENSSH PRIVATE KEY-----

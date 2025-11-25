@@ -1,0 +1,15 @@
+suite: Directories ConfigMap tests
+templates:
+  - configmap-directories.yaml
+tests:
+  - it: should render a ConfigMap with directories.txt
+    values:
+      - fixtures/values-basic.yaml
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: data["directories.txt"]
+          value: |
+            repo-one
+            repo-two

@@ -1,0 +1,28 @@
+suite: RBAC tests
+templates:
+  - rbac.yaml
+tests:
+  - it: should render a Role when rbac.create is true
+    values:
+      - fixtures/values-basic.yaml
+    asserts:
+      - isKind:
+          of: Role
+        documentIndex: 0
+
+  - it: should render a RoleBinding when rbac.create is true
+    values:
+      - fixtures/values-basic.yaml
+    asserts:
+      - isKind:
+          of: RoleBinding
+        documentIndex: 1
+
+  - it: should not render any RBAC resources when rbac.create is false
+    values:
+      - fixtures/values-basic.yaml
+    set:
+      rbac.create: false
+    asserts:
+      - hasDocuments:
+          count: 0

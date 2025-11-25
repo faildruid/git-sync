@@ -1,0 +1,54 @@
+suite: CronJob basic and advanced tests
+templates:
+  - cronjob.yaml
+tests:
+  - it: should render a CronJob with expected schedule
+    values:
+      - fixtures/values-basic.yaml
+    asserts:
+      - isKind:
+          of: CronJob
+      - equal:
+          path: spec.schedule
+          value: "0 */12 * * *"
+      - equal:
+          path: spec.concurrencyPolicy
+          value: "Forbid"
+
+  - it: should not have envFrom when secretEnv is disabled
+    values:
+      - fixtures/values-basic.yaml
+    set:
+      secretEnv.enabled: false
+    asserts:
+      - notExists:
+          path: spec.jobTemplate.spec.template.spec.containers[0].envFrom
+
+  - it: should use overridden CronJob schedule when set
+    values:
+      - fixtures/values-basic.yaml
+    set:
+      cronJob.schedule: "0 0 * * *"
+    asserts:
+      - equal:
+          path: spec.schedule
+          value: "0 0 * * *"
+
+  - it: should use default generated serviceAccountName when no override
+    values:
+      - fixtures/values-basic.yaml
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.serviceAccountName
+          value: "RELEASE-NAME-gitsync"
+
+  - it: should use custom serviceAccountName when overridden
+    values:
+      - fixtures/values-basic.yaml
+    set:
+      serviceAccount.name: "custom-sa"
+    asserts:
+      - equal:
+          path: spec.jobTemplate.spec.template.spec.serviceAccountName
+          value: "custom-sa"
+

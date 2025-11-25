@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gitsync.directoriesConfigMapName" . }}
+  labels:
+    {{- include "gitsync.labels" . | nindent 4 }}
+data:
+  directories.txt: |
+{{- nindent 4 .Values.directoriesFileContent }}
